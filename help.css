@@ -10,3 +10,7 @@ p, li { font-size:14px; }
 li + li { margin-top:6px; }
 code { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }
 footer { margin-top:36px; opacity:.6; font-size:12px; }
+
+dl { margin: 0; }
+dt { margin-top: 14px; font-size: 14px; }
+dd { margin: 4px 0 0 18px; font-size: 14px; opacity: .9; }
