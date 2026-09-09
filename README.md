@@ -1,3 +1,5 @@
+![Data Client for Moultrie Web App](https://github.com/garrettds11/moultrie-data-client/blob/main/data-client-logo.png)
+
 # Moultrie data client
 
 A developer-mode Chrome extension that collects structured gallery metadata from the Moultrie Mobile web application, keeps a local reconciled copy in IndexedDB, and exports the data for analysis in tools such as Splunk, Excel, or Python.
