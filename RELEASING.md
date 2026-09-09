@@ -2,6 +2,8 @@
 
 Release packaging is automated by `.github/workflows/release.yml`.
 
+The workflow is intentionally implemented without third-party or GitHub-owned reusable actions because this repository's Actions policy only permits actions owned by `garrettds11`. It uses shell commands, `git`, `zip`, and the GitHub CLI available on the GitHub-hosted runner.
+
 ## What the release ZIP contains
 
 The generated ZIP is intentionally limited to files needed to run the unpacked Chrome extension, plus the GPL license:
@@ -17,22 +19,27 @@ The generated ZIP is intentionally limited to files needed to run the unpacked C
 - `help.css`
 - `LICENSE`
 
-It does not include `.git`, repository history, the README, GitHub workflow files, or other repository-only material.
+It does not include `.git`, repository history, the README, GitHub workflow files, the project logo, or other repository-only material.
 
 ## Create a release
 
+### Manual release from GitHub Actions
+
 1. Make sure `manifest.json` contains the intended version, for example `0.5.0`.
 2. Commit and push the finished version to `main`.
-3. Create and push a matching tag:
+3. Open **Actions → Build release package → Run workflow**.
+4. The workflow builds `moultrie-data-client-v0.5.0.zip`, creates tag `v0.5.0` if needed, and creates the matching GitHub Release. If the release already exists, the ZIP asset is replaced with the newly built package.
 
-   ```bash
-   git tag v0.5.0
-   git push origin v0.5.0
-   ```
+### Release by pushing a tag
 
-4. GitHub Actions will build `moultrie-data-client-v0.5.0.zip` and create/update the GitHub Release for that tag with generated release notes.
+You can also create and push a matching version tag:
 
-The workflow can also be run manually from the **Actions** tab using **Build release package → Run workflow**. A manual run produces a downloadable workflow artifact but does not create a GitHub Release because no release tag is present.
+```bash
+git tag v0.5.0
+git push origin v0.5.0
+```
+
+The workflow verifies that the pushed tag matches the version in `manifest.json`, then builds the ZIP and creates or updates the matching GitHub Release.
 
 ## Installing a release ZIP
 
