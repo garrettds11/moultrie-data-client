@@ -12,13 +12,54 @@
     <p class="lede">A small collection client for copying your Moultrie gallery metadata into local browser storage and exporting it for analysis elsewhere.</p>
 
     <section>
-      <h2>How to use it</h2>
+      <h2>Quick start</h2>
       <ol>
         <li>Log in at <strong>web.moultriemobile.com</strong> and open or reload the gallery.</li>
         <li>Wait for the gallery to load, then open the extension. <strong>API auth</strong> should say <strong>Ready</strong>.</li>
         <li>Click <strong>Sync gallery</strong>. The client reconciles the full gallery so it can find new photos and pick up changes to older records.</li>
-        <li>Export <strong>Photos CSV</strong>, <strong>Detections CSV</strong>, or the <strong>Full JSON</strong> when you want to use the data in Splunk, Excel, Python, or another tool.</li>
+        <li>Export <strong>Photos CSV</strong>, <strong>Detections CSV</strong>, or <strong>Full JSON</strong> when you want to use the data in Splunk, Excel, Python, or another tool.</li>
       </ol>
+    </section>
+
+    <section>
+      <h2>Popup controls and status fields</h2>
+      <dl>
+        <dt><strong>Help</strong></dt>
+        <dd>Opens this instruction page in a new tab. It does not change or sync data.</dd>
+
+        <dt><strong>API auth</strong></dt>
+        <dd><strong>Ready</strong> means the extension has captured the Moultrie API headers needed to make gallery requests from your current browser session. <strong>Partial</strong> means only part of the required API context was captured. <strong>Not detected</strong> means no usable API session has been observed yet. If it is not Ready, open or reload the Moultrie gallery and wait for it to finish loading.</dd>
+
+        <dt><strong>Records stored</strong></dt>
+        <dd>The number of Moultrie photo records currently stored in the extension's local IndexedDB database. This is a local count, not a live Moultrie cloud count until you sync.</dd>
+
+        <dt><strong>Last sync</strong></dt>
+        <dd>The completion time of the last successful gallery sync recorded locally by the extension.</dd>
+
+        <dt><strong>Sync</strong></dt>
+        <dd>Shows the current sync state such as Idle, Running, Complete, or Error. While a sync is running, progress and diagnostics are shown below it.</dd>
+
+        <dt><strong>New / Updated / Unchanged</strong></dt>
+        <dd>Results of the most recent reconciliation. <strong>New</strong> records had image IDs not already stored locally. <strong>Updated</strong> records already existed but their Moultrie server data changed. <strong>Unchanged</strong> records matched the locally stored server record.</dd>
+
+        <dt><strong>Sync gallery</strong></dt>
+        <dd>Requests the full Moultrie gallery page by page and reconciles every returned image record against local storage. It can collect new photos and capture later changes to older records, such as Smart Tags, favorites, or game-profile associations. It does not download the image or video files themselves.</dd>
+
+        <dt><strong>Export photos CSV</strong></dt>
+        <dd>Downloads one CSV row per stored photo record using a flattened set of useful fields for downstream tools. Nested detection details are summarized in this file.</dd>
+
+        <dt><strong>Export detections CSV</strong></dt>
+        <dd>Downloads one CSV row per detection from <code>irTags</code> and <code>smartCaptureTags</code>. A single photo can therefore produce zero, one, or multiple rows.</dd>
+
+        <dt><strong>Export full JSON</strong></dt>
+        <dd>Downloads the stored records with their full Moultrie response structure plus local collection timestamps and the last-sync summary. Use this as the highest-fidelity export and archival format.</dd>
+
+        <dt><strong>Refresh status</strong></dt>
+        <dd>Re-reads the extension's current local state and redraws the popup. It updates displayed values such as API auth, record count, last sync, and sync status. <strong>It does not contact Moultrie, start a sync, retry a failed sync, modify records, or refresh authentication by itself.</strong></dd>
+
+        <dt><strong>Clear local data</strong></dt>
+        <dd>Deletes collected gallery records and local sync history after confirmation. It does not delete anything from your Moultrie cloud account. The currently captured API session headers are intentionally retained so a new sync can usually begin immediately if the session is still valid.</dd>
+      </dl>
     </section>
 
     <section>
@@ -30,24 +71,31 @@
     <section>
       <h2>Where it is saved</h2>
       <p>Collected records are stored locally in <strong>IndexedDB inside this Chrome profile</strong>. Sync status and the captured Moultrie API session headers are stored in extension-local Chrome storage. Nothing is sent to a separate server by this extension.</p>
+      <p>Because storage belongs to the Chrome profile and extension origin, another Chrome profile has separate data. Removing the extension or clearing Chrome extension/site data may remove locally stored data. Export anything you want to preserve independently.</p>
     </section>
 
     <section>
       <h2>What happens on later syncs</h2>
-      <p>Each Moultrie image ID is treated as a stable record key. A later sync reports:</p>
+      <p>Each Moultrie image ID is treated as a stable record key. A later sync performs a full reconciliation:</p>
       <ul>
         <li><strong>New</strong> — image IDs not previously stored.</li>
         <li><strong>Updated</strong> — existing image IDs whose Moultrie record changed.</li>
         <li><strong>Unchanged</strong> — records already stored with the same server data.</li>
       </ul>
-      <p>This is deliberately a full reconciliation rather than an analytics step. It allows later Smart Tag, buck-profile, favorite, or similar server-side changes to older photos to be captured.</p>
+      <p>This intentionally allows later Smart Tag, buck-profile, favorite, or similar server-side changes to older photos to be captured. A new camera upload later in the day simply appears as <strong>New</strong> on the next sync.</p>
     </section>
 
     <section>
       <h2>Clearing local data</h2>
       <p><strong>Clear local data</strong> deletes the extension's collected gallery records and local sync history. It does not delete anything from your Moultrie account or cloud gallery.</p>
-      <p>The Moultrie API session information is intentionally retained when you clear collected data. If that session is still valid, the next sync can run immediately. The next sync will treat the gallery as a fresh local collection, so all current gallery records will appear as <strong>New</strong> and repopulate IndexedDB.</p>
-      <p>If Moultrie authentication has expired, reload the Moultrie gallery (or log in again) so the extension can capture a current API session before syncing.</p>
+      <p>The Moultrie API session information is intentionally retained when you clear collected data. If that session is still valid, the next sync can run immediately. Because the local records are gone, the next sync treats every current gallery record as <strong>New</strong> and repopulates IndexedDB.</p>
+      <p>If Moultrie authentication has expired, reload the Moultrie gallery or log in again so the extension can capture a current API session before syncing.</p>
+    </section>
+
+    <section>
+      <h2>Authentication and privacy</h2>
+      <p>The extension observes the API authentication context used by the Moultrie web application and stores the required request headers locally in Chrome extension storage. These values can include a bearer token for the current Moultrie session. They are <strong>not</strong> included in Photos CSV, Detections CSV, or Full JSON exports.</p>
+      <p>Treat your Chrome profile as sensitive while you are logged in. Logging out of Moultrie or allowing the session to expire can invalidate the captured authentication. The extension does not ask for or store your Moultrie password.</p>
     </section>
 
     <section>
@@ -55,7 +103,17 @@
       <p>This extension is intentionally a <strong>collection and export client</strong>. Encounter grouping, weather/sunrise enrichment, trend analysis, and predictive hunting logic belong in downstream tools such as Splunk, Excel, or Python.</p>
     </section>
 
-    <footer>Version 0.4.0</footer>
+    <section>
+      <h2>Troubleshooting</h2>
+      <ul>
+        <li><strong>API auth is not Ready:</strong> open or reload the Moultrie gallery and wait for it to load, then click <strong>Refresh status</strong>.</li>
+        <li><strong>401 / authentication error:</strong> the captured session may be expired. Reload the gallery or log in again, then retry.</li>
+        <li><strong>Record count seems old:</strong> <strong>Refresh status</strong> only refreshes the popup; use <strong>Sync gallery</strong> to query Moultrie for new or changed records.</li>
+        <li><strong>After clearing data:</strong> the record count should return to zero. The next gallery sync rebuilds the local database from the cloud gallery.</li>
+      </ul>
+    </section>
+
+    <footer>Version 0.5.0 · Community project; not affiliated with or endorsed by Moultrie Mobile.</footer>
   </main>
 </body>
 </html>
