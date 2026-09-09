@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Moultrie data client",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Collects and reconciles structured Moultrie gallery metadata into local IndexedDB and exports CSV/JSON.",
   "permissions": [
     "storage",
