@@ -12,21 +12,31 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Read extension version
-        id: version
+      - name: Check out repository without external actions
         shell: bash
         run: |
-          VERSION=$(python -c 'import json; print(json.load(open("manifest.json"))["version"])')
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "zip_name=moultrie-data-client-v$VERSION.zip" >> "$GITHUB_OUTPUT"
+          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
+          cd repo
+          git fetch --depth 1 origin "$GITHUB_REF"
+          git checkout --detach FETCH_HEAD
 
       - name: Build clean installable ZIP
+        id: package
         shell: bash
         run: |
+          cd repo
+          VERSION=$(python -c 'import json; print(json.load(open("manifest.json"))["version"])')
+          TAG="v$VERSION"
+          ZIP_NAME="moultrie-data-client-v$VERSION.zip"
+
+          if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF_NAME" != "$TAG" ]]; then
+            echo "Tag $GITHUB_REF_NAME does not match manifest version $VERSION" >&2
+            exit 1
+          fi
+
           mkdir -p release-package
           cp manifest.json release-package/
           cp background.js release-package/
@@ -38,22 +48,27 @@ jobs:
           cp help.html release-package/
           cp help.css release-package/
           cp LICENSE release-package/
+
           cd release-package
-          zip -r "../${{ steps.version.outputs.zip_name }}" .
+          zip -r "../$ZIP_NAME" .
+          cd ..
 
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: moultrie-data-client-v${{ steps.version.outputs.version }}
-          path: ${{ steps.version.outputs.zip_name }}
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "zip_name=$ZIP_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Create GitHub release and attach ZIP
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Create or update GitHub Release
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            "${{ steps.version.outputs.zip_name }}" \
-            --title "$GITHUB_REF_NAME" \
-            --generate-notes
+          cd repo
+          TAG="${{ steps.package.outputs.tag }}"
+          ZIP_NAME="${{ steps.package.outputs.zip_name }}"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ZIP_NAME" --clobber
+          else
+            gh release create "$TAG" "$ZIP_NAME" \
+              --target "$GITHUB_SHA" \
+              --title "$TAG" \
+              --generate-notes
+          fi
