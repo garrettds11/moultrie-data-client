@@ -1,0 +1,23 @@
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 390px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
+main { padding: 16px; }
+.title-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+h1 { font-size: 18px; margin: 0 0 12px; }
+.card { border: 1px solid rgba(127,127,127,.35); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+.row { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0; align-items: baseline; }
+.small-strong { font-size: 11px; text-align:right; max-width: 220px; }
+.detail, .foot { font-size: 12px; opacity: .78; white-space: pre-wrap; }
+button { width: 100%; padding: 9px 10px; border-radius: 8px; border: 1px solid rgba(127,127,127,.45); cursor: pointer; }
+button:disabled { opacity: .55; cursor: default; }
+.primary { font-weight: 700; margin-bottom: 10px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.danger { margin-top: 10px; }
+.link-button { width:auto; padding:4px 8px; font-size:12px; margin-bottom:12px; background:transparent; }
+.progress-wrap { height: 8px; background: rgba(127,127,127,.2); border-radius: 999px; overflow: hidden; margin-top: 10px; }
+.progress { height: 100%; width: 0%; background: currentColor; opacity: .65; transition: width .2s ease; }
+.stats { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px; }
+.stats div { border:1px solid rgba(127,127,127,.25); border-radius:7px; padding:7px; text-align:center; }
+.stats span { display:block; font-size:10px; opacity:.7; }
+.stats strong { font-size:14px; }
+.hidden { display: none; }

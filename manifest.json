@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Moultrie data client",
+  "version": "0.4.0",
+  "description": "Collects and reconciles structured Moultrie gallery metadata into local IndexedDB and exports CSV/JSON.",
+  "permissions": [
+    "storage",
+    "downloads",
+    "tabs",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "https://web.moultriemobile.com/*",
+    "https://consumerapi-web-v2.moultriemobile.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Moultrie data client",
+    "default_popup": "popup.html"
+  }
+}

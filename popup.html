@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Moultrie data client</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <div class="title-row">
+      <h1>Moultrie data client</h1>
+      <button id="help" class="link-button" title="Instructions">Help</button>
+    </div>
+
+    <div class="card">
+      <div class="row"><span>API auth</span><strong id="session">Checking…</strong></div>
+      <div class="row"><span>Records stored</span><strong id="count">0</strong></div>
+      <div class="row"><span>Last sync</span><strong id="lastSync" class="small-strong">Never</strong></div>
+      <div class="row"><span>Sync</span><strong id="syncState">Idle</strong></div>
+      <div id="progressWrap" class="progress-wrap hidden"><div id="progress" class="progress"></div></div>
+      <p id="detail" class="detail"></p>
+      <div id="stats" class="stats hidden">
+        <div><span>New</span><strong id="newCount">0</strong></div>
+        <div><span>Updated</span><strong id="updatedCount">0</strong></div>
+        <div><span>Unchanged</span><strong id="unchangedCount">0</strong></div>
+      </div>
+    </div>
+
+    <button id="sync" class="primary">Sync gallery</button>
+
+    <div class="grid">
+      <button id="exportPhotos">Export photos CSV</button>
+      <button id="exportDetections">Export detections CSV</button>
+      <button id="exportJson">Export full JSON</button>
+      <button id="refresh">Refresh status</button>
+    </div>
+
+    <button id="clear" class="danger">Clear local data</button>
+    <p class="foot">Collection only: data stays in this Chrome profile until exported or cleared.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

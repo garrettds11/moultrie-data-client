@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Moultrie data client — Help</title>
+  <link rel="stylesheet" href="help.css">
+</head>
+<body>
+  <main>
+    <h1>Moultrie data client</h1>
+    <p class="lede">A small collection client for copying your Moultrie gallery metadata into local browser storage and exporting it for analysis elsewhere.</p>
+
+    <section>
+      <h2>How to use it</h2>
+      <ol>
+        <li>Log in at <strong>web.moultriemobile.com</strong> and open or reload the gallery.</li>
+        <li>Wait for the gallery to load, then open the extension. <strong>API auth</strong> should say <strong>Ready</strong>.</li>
+        <li>Click <strong>Sync gallery</strong>. The client reconciles the full gallery so it can find new photos and pick up changes to older records.</li>
+        <li>Export <strong>Photos CSV</strong>, <strong>Detections CSV</strong>, or the <strong>Full JSON</strong> when you want to use the data in Splunk, Excel, Python, or another tool.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>What is saved</h2>
+      <p>The client saves the structured gallery records returned by Moultrie, including timestamps, camera information, tags/detections, environmental fields Moultrie returns, image/video URLs, and other record fields. It does <strong>not</strong> download or store the image or video files themselves.</p>
+      <p>The full server record is retained so fields that are not yet important can still be exported later.</p>
+    </section>
+
+    <section>
+      <h2>Where it is saved</h2>
+      <p>Collected records are stored locally in <strong>IndexedDB inside this Chrome profile</strong>. Sync status and the captured Moultrie API session headers are stored in extension-local Chrome storage. Nothing is sent to a separate server by this extension.</p>
+    </section>
+
+    <section>
+      <h2>What happens on later syncs</h2>
+      <p>Each Moultrie image ID is treated as a stable record key. A later sync reports:</p>
+      <ul>
+        <li><strong>New</strong> — image IDs not previously stored.</li>
+        <li><strong>Updated</strong> — existing image IDs whose Moultrie record changed.</li>
+        <li><strong>Unchanged</strong> — records already stored with the same server data.</li>
+      </ul>
+      <p>This is deliberately a full reconciliation rather than an analytics step. It allows later Smart Tag, buck-profile, favorite, or similar server-side changes to older photos to be captured.</p>
+    </section>
+
+    <section>
+      <h2>Clearing local data</h2>
+      <p><strong>Clear local data</strong> deletes the extension's collected gallery records and local sync history. It does not delete anything from your Moultrie account or cloud gallery.</p>
+      <p>The Moultrie API session information is intentionally retained when you clear collected data. If that session is still valid, the next sync can run immediately. The next sync will treat the gallery as a fresh local collection, so all current gallery records will appear as <strong>New</strong> and repopulate IndexedDB.</p>
+      <p>If Moultrie authentication has expired, reload the Moultrie gallery (or log in again) so the extension can capture a current API session before syncing.</p>
+    </section>
+
+    <section>
+      <h2>Scope</h2>
+      <p>This extension is intentionally a <strong>collection and export client</strong>. Encounter grouping, weather/sunrise enrichment, trend analysis, and predictive hunting logic belong in downstream tools such as Splunk, Excel, or Python.</p>
+    </section>
+
+    <footer>Version 0.4.0</footer>
+  </main>
+</body>
+</html>
